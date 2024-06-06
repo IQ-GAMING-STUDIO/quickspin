@@ -7,25 +7,15 @@ from amountOfWinning import *
 import json
 import os
 
-# minimum balance to get out the money = 20$
-# minimum bet = 1$
-# winning = 200% of the bet
-
-fruits = {
-    "1": apple,
-    "2": banana,
-    "3": pear
+fruits = { "1": apple, "2": banana, "3": pear
 }
-
 def get_user_data_path():
     return "data.json"
-
 def initialize_user_data():
     user_data_path = get_user_data_path()
     if not os.path.exists(user_data_path):
         with open(user_data_path, 'w') as file:
             json.dump({"min_to_out": 20, "balance": 3, "bet": 1}, file)
-
 def MainPage(page: ft.Page) -> None:
     user_data_path = get_user_data_path()
     initialize_user_data()
@@ -54,7 +44,7 @@ def MainPage(page: ft.Page) -> None:
         color=ft.colors.INDIGO_700
     )
 
-    winning_amount = CalculateAmountOfWinning(user_data_path, apple_count)
+    winning_amount = CalculateAmountOfWinning(apple_count)
     winning_amount_text = ft.Text(value=str(winning_amount) + "$", size=30, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
 
     amount_of_winnings_card = ft.Card(
@@ -137,7 +127,7 @@ def MainPage(page: ft.Page) -> None:
 
     def GetCards():
         items = []
-        given = RandomizeCards(user_data_path)
+        given = RandomizeCards()
         for i in given:
             items.append(
                 ImageContainer(
@@ -227,9 +217,9 @@ def MainPage(page: ft.Page) -> None:
         page.dialog = ft.AlertDialog(
             title=ft.Text("Withdrawal Information"),
             content=ft.Text("Withdrawal is available from 25$ and above"),
-            actions=[ft.TextButton("OK", on_click=lambda e: close_withdrawal_dialog())]
+            actions=[ft.TextButton("OK", on_click=lambda e: close_withdrawal_dialog(e))]
         )
-        
+
         page.dialog.open = True
         page.update()
 
