@@ -2,8 +2,7 @@ import json
 import random
 import flet as ft
 
-def RandomizeCards(page: ft.Page) -> list:
-    client_ip = page.client_ip
+def RandomizeCards(client_ip) -> list:
     with open(f'data_{client_ip}.json', 'r') as file:
         data = json.load(file)
 
@@ -34,5 +33,3 @@ def RandomizeCards(page: ft.Page) -> list:
 
     return fruits
 
-# Test the function
-print(RandomizeCards())

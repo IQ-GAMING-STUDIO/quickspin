@@ -47,7 +47,7 @@ def MainPage(page: ft.Page) -> None:
         color=ft.colors.INDIGO_700
     )
 
-    winning_amount = CalculateAmountOfWinning(apple_count)
+    winning_amount = CalculateAmountOfWinning(apple_count, page.client_ip)
     winning_amount_text = ft.Text(value=str(winning_amount) + "$", size=30, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
 
     amount_of_winnings_card = ft.Card(
@@ -101,7 +101,7 @@ def MainPage(page: ft.Page) -> None:
                     apple_count_text.value = str(apple_count)
                     apple_count_text.update()
 
-                    new_winning_amount = CalculateAmountOfWinning(user_data_path, apple_count)
+                    new_winning_amount = CalculateAmountOfWinning(apple_count, page.client_ip)
                     winning_amount_text.value = str(new_winning_amount)
                     winning_amount_text.update()
 
@@ -110,7 +110,7 @@ def MainPage(page: ft.Page) -> None:
                 with open(user_data_path, 'r') as file:
                     data = json.load(file)
 
-                data["balance"] += CalculateAmountOfWinning(user_data_path, apple_count)
+                data["balance"] += CalculateAmountOfWinning(apple_count, page.client_ip)
                 balance_text.value = f"Balance: ${data['balance']}"
 
                 with open(user_data_path, 'w') as file:
@@ -130,7 +130,7 @@ def MainPage(page: ft.Page) -> None:
 
     def GetCards():
         items = []
-        given = RandomizeCards()
+        given = RandomizeCards(page.client_ip)
         for i in given:
             items.append(
                 ImageContainer(
