@@ -1,6 +1,8 @@
 import json
 import random
+
 def RandomizeCards() -> list:
+    client_ip = page.client_ip
     with open('data.json', 'r') as file:
         data = json.load(file)
 

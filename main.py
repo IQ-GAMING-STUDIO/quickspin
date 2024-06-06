@@ -7,18 +7,21 @@ from amountOfWinning import *
 import json
 import os
 
-fruits = { "1": apple, "2": banana, "3": pear
-}
-def get_user_data_path():
-    return "data.json"
-def initialize_user_data():
-    user_data_path = get_user_data_path()
+fruits = {"1": apple, "2": banana, "3": pear}
+
+def get_user_data_path(client_ip):
+    return f"data_{client_ip}.json"
+
+def initialize_user_data(client_ip):
+    user_data_path = get_user_data_path(client_ip)
     if not os.path.exists(user_data_path):
         with open(user_data_path, 'w') as file:
             json.dump({"min_to_out": 20, "balance": 3, "bet": 1}, file)
+
 def MainPage(page: ft.Page) -> None:
-    user_data_path = get_user_data_path()
-    initialize_user_data()
+    client_ip = page.client_ip
+    user_data_path = get_user_data_path(client_ip)
+    initialize_user_data(client_ip)
 
     with open(user_data_path, 'r') as file:
         data = json.load(file)
