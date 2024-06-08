@@ -239,4 +239,4 @@ def MainPage(page: ft.Page) -> None:
                     vertical_alignment=CrossAxisAlignment.CENTER), withdrawal_button)
     page.update()
 
-ft.app(target=MainPage, assets_dir="assets")
+ft.app(target=MainPage)
