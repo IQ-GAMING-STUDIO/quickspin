@@ -1,14 +1,13 @@
 import flet as ft
 from flet import *
+from images import *
 import random
 from randomiser import *
 from amountOfWinning import *
 import json
 import os
 
-# Замена картинок на смайлики и черный знак вопроса
-fruits = {"1": "🍎", "2": "🍌", "3": "🍐"}
-question_mark = "?"  # Используйте чёрный знак вопроса
+fruits = {"1": apple, "2": banana, "3": pear}
 
 def MainPage(page: ft.Page) -> None:
 
@@ -28,12 +27,12 @@ def MainPage(page: ft.Page) -> None:
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     apple_count = 0
-    apple_count_text = ft.Text(value="0", size=21, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
+    apple_count_text = ft.Text(value="0", size=30, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
 
     apple_card = ft.Card(
         content=ft.Container(
             content=ft.Row([
-                ft.Text(value=fruits["1"], size=28),  # Размер уменьшен до 70%
+                ft.Image(src=fruits["1"], width=40, height=40),
                 apple_count_text
             ],
                 alignment=MainAxisAlignment.CENTER,
@@ -46,7 +45,7 @@ def MainPage(page: ft.Page) -> None:
     )
 
     winning_amount = CalculateAmountOfWinning(apple_count, page.client_ip)
-    winning_amount_text = ft.Text(value=str(winning_amount) + "$", size=21, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
+    winning_amount_text = ft.Text(value=str(winning_amount) + "$", size=30, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
 
     amount_of_winnings_card = ft.Card(
         content=ft.Container(
@@ -62,7 +61,7 @@ def MainPage(page: ft.Page) -> None:
         color=ft.colors.INDIGO_700
     )
 
-    balance_text = ft.Text(value=f"Balance: ${data['balance']}", size=21, color=ft.colors.WHITE, weight=ft.FontWeight.BOLD)
+    balance_text = ft.Text(value=f"Balance: ${data['balance']}", size=30, color=ft.colors.WHITE, weight=ft.FontWeight.BOLD)
 
     bet_placed = False
 
@@ -72,7 +71,7 @@ def MainPage(page: ft.Page) -> None:
             self.initial_image = initial_image
             self.images = images
             self.button_clicked = False
-            self.image_widget = ft.Text(value=initial_image, size=40, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)  # Размер уменьшен до 70% и цвет черный
+            self.image_widget = ft.Image(src=initial_image, width=50, height=50)
 
         def build(self) -> None:
             return ft.Container(
@@ -89,13 +88,12 @@ def MainPage(page: ft.Page) -> None:
             nonlocal apple_count
             if bet_placed and not self.button_clicked and self.images:
                 new_image = random.choice(self.images)
-                self.image_widget.value = new_image
-                self.image_widget.color = None  # Убираем черный цвет для смайликов
+                self.image_widget.src = new_image
                 self.images.remove(new_image)
                 self.button_clicked = True
                 self.update()
 
-                if new_image == fruits["1"]:
+                if new_image == apple:
                     apple_count += 1
                     apple_count_text.value = str(apple_count)
                     apple_count_text.update()
@@ -239,4 +237,4 @@ def MainPage(page: ft.Page) -> None:
                     vertical_alignment=CrossAxisAlignment.CENTER), withdrawal_button)
     page.update()
 
-ft.app(target=MainPage)
+ft.app(target=MainPage, assets_dir="assets")
