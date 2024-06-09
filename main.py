@@ -9,21 +9,18 @@ import os
 
 fruits = {"1": apple, "2": banana, "3": pear}
 
-def get_user_data_path(client_ip):
-    return f"data_{client_ip}.json"
-
-def initialize_user_data(client_ip):
-    user_data_path = get_user_data_path(client_ip)
-    if not os.path.exists(user_data_path):
-        with open(user_data_path, 'w') as file:
-            json.dump({"min_to_out": 20, "balance": 3, "bet": 1}, file)
-
 def MainPage(page: ft.Page) -> None:
-    client_ip = page.client_ip
-    user_data_path = get_user_data_path(client_ip)
-    initialize_user_data(client_ip)
 
-    with open(user_data_path, 'r') as file:
+    client_ip = page.client_ip
+    data_filename = f"data_{client_ip}.json"
+
+    # Проверьте, существует ли файл данных, если нет - создайте его
+    if not os.path.exists(data_filename):
+        with open(data_filename, 'w') as file:
+            initial_data = {"min_to_out": 20, "balance": 3, "bet": 1}
+            json.dump(initial_data, file)
+
+    with open(data_filename, 'r') as file:
         data = json.load(file)
 
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
@@ -107,13 +104,13 @@ def MainPage(page: ft.Page) -> None:
 
             all_cards_revealed = all(card.button_clicked for card in card_controls)
             if all_cards_revealed:
-                with open(user_data_path, 'r') as file:
+                with open(data_filename, 'r') as file:
                     data = json.load(file)
 
                 data["balance"] += CalculateAmountOfWinning(apple_count, page.client_ip)
                 balance_text.value = f"Balance: ${data['balance']}"
 
-                with open(user_data_path, 'w') as file:
+                with open(data_filename, 'w') as file:
                     json.dump(data, file)
 
                 apple_count = 0
@@ -175,7 +172,7 @@ def MainPage(page: ft.Page) -> None:
     def place_bet():
         nonlocal bet_placed
         bet_amount = int(bet_input.value)
-        with open(user_data_path, 'r') as file:
+        with open(data_filename, 'r') as file:
             data = json.load(file)
 
         if bet_amount < 1:
@@ -187,7 +184,7 @@ def MainPage(page: ft.Page) -> None:
         else:
             data["bet"] = bet_amount
             data["balance"] -= bet_amount
-            with open(user_data_path, 'w') as file:
+            with open(data_filename, 'w') as file:
                 json.dump(data, file)
 
             bet_error_text.value = ""
@@ -233,10 +230,11 @@ def MainPage(page: ft.Page) -> None:
         page.update()
 
     page.add(
-        ft.Row(controls=[balance_text], alignment=MainAxisAlignment.CENTER, vertical_alignment=CrossAxisAlignment.START))
+        ft.Row(controls=[balance_text], alignment=MainAxisAlignment.CENTER, vertical_alignment=CrossAxisAlignment.START)
+    )
 
     page.add(ft.Row(controls=[apple_card, amount_of_winnings_card], alignment=MainAxisAlignment.CENTER,
                     vertical_alignment=CrossAxisAlignment.CENTER), withdrawal_button)
     page.update()
 
-ft.app(target=MainPage)
+ft.app(target=MainPage, assets_dir="dist")
