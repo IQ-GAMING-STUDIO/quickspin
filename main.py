@@ -46,8 +46,17 @@ def MainPage(page: ft.Page) -> None:
     with open(data_filename, 'r') as file:
         data = json.load(file)
 
+
+
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+    heading = ft.Text(value="Quick Spin", size=50, weight=ft.FontWeight.BOLD)
+
+    page.add(
+        heading,
+        ft.Text(value="")
+    )
 
     apple_count = 0
     apple_count_text = ft.Text(value="0", size=30, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
@@ -261,6 +270,9 @@ def MainPage(page: ft.Page) -> None:
 
     page.add(ft.Row(controls=[apple_card, amount_of_winnings_card], alignment=MainAxisAlignment.CENTER,
                     vertical_alignment=CrossAxisAlignment.CENTER), withdrawal_button)
+
+
+
     page.update()
 
 def check_and_update_balances():
