@@ -6,15 +6,38 @@ from randomiser import *
 from amountOfWinning import *
 import json
 import os
+import schedule
+import time
+from threading import Thread
 
 fruits = {"1": apple, "2": banana, "3": pear}
 
-def MainPage(page: ft.Page) -> None:
 
+def MainPage(page: ft.Page) -> None:
     client_ip = page.client_ip
+
+    def close_warning_dialog():
+        page.dialog.open = False
+        page.update()
+
+    if not client_ip:
+        # If IP address is not available or empty
+        page.dialog = ft.AlertDialog(
+            title=ft.Text("Warning"),
+            content=ft.Column([
+                ft.Text("We are not able to get your IP! This may affect the app's functionality."),
+                ft.Text("Click 'Proceed' to continue if you understand the risks.")
+            ]),
+            actions=[
+                ft.TextButton("Proceed", on_click=lambda e: close_warning_dialog(), width="100%")
+            ],
+        )
+        page.dialog.open = True
+        page.update()
+
     data_filename = f"data_{client_ip}.json"
 
-    # Проверьте, существует ли файл данных, если нет - создайте его
+    # Check if data file exists, if not - create it
     if not os.path.exists(data_filename):
         with open(data_filename, 'w') as file:
             initial_data = {"min_to_out": 20, "balance": 3, "bet": 1}
@@ -45,7 +68,8 @@ def MainPage(page: ft.Page) -> None:
     )
 
     winning_amount = CalculateAmountOfWinning(apple_count, page.client_ip)
-    winning_amount_text = ft.Text(value=str(winning_amount) + "$", size=30, color=ft.colors.BLACK, weight=ft.FontWeight.BOLD)
+    winning_amount_text = ft.Text(value=str(winning_amount) + "$", size=30, color=ft.colors.BLACK,
+                                  weight=ft.FontWeight.BOLD)
 
     amount_of_winnings_card = ft.Card(
         content=ft.Container(
@@ -61,7 +85,8 @@ def MainPage(page: ft.Page) -> None:
         color=ft.colors.INDIGO_700
     )
 
-    balance_text = ft.Text(value=f"Balance: ${data['balance']}", size=30, color=ft.colors.WHITE, weight=ft.FontWeight.BOLD)
+    balance_text = ft.Text(value=f"Balance: ${data['balance']}", size=30, color=ft.colors.WHITE,
+                           weight=ft.FontWeight.BOLD)
 
     bet_placed = False
 
@@ -105,13 +130,13 @@ def MainPage(page: ft.Page) -> None:
             all_cards_revealed = all(card.button_clicked for card in card_controls)
             if all_cards_revealed:
                 with open(data_filename, 'r') as file:
-                    data = json.load(file)
+                    data_temp = json.load(file)
 
-                data["balance"] += CalculateAmountOfWinning(apple_count, page.client_ip)
-                balance_text.value = f"Balance: ${data['balance']}"
+                data_temp["balance"] += CalculateAmountOfWinning(apple_count, page.client_ip)
+                balance_text.value = f"Balance: ${data_temp['balance']}"
 
                 with open(data_filename, 'w') as file:
-                    json.dump(data, file)
+                    json.dump(data_temp, file)
 
                 apple_count = 0
                 apple_count_text.value = "0"
@@ -198,6 +223,7 @@ def MainPage(page: ft.Page) -> None:
             bet_button.disabled = True
             bet_input.update()
             bet_button.update()
+
             shuffle_cards()
 
     page.add(cards)
@@ -236,5 +262,26 @@ def MainPage(page: ft.Page) -> None:
     page.add(ft.Row(controls=[apple_card, amount_of_winnings_card], alignment=MainAxisAlignment.CENTER,
                     vertical_alignment=CrossAxisAlignment.CENTER), withdrawal_button)
     page.update()
+
+def check_and_update_balances():
+    for filename in os.listdir("/"):
+        if filename.endswith(".json"):
+            with open(filename, 'r') as file:
+                data = json.load(file)
+            if data["balance"] < 3:
+                data["balance"] = 3
+                with open(filename, 'w') as file:
+                    json.dump(data, file)
+
+def schedule_daily_update():
+    schedule.every().day.at("00:00").do(check_and_update_balances)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+def start_scheduler():
+    scheduler_thread = Thread(target=schedule_daily_update)
+    scheduler_thread.daemon = True
+    scheduler_thread.start()
 
 ft.app(target=MainPage, assets_dir="assets")

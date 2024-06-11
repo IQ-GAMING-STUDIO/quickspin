@@ -15,4 +15,4 @@ def CalculateAmountOfWinning(apples, client_ip) -> float:
 
     result = data["bet"] * percent_to_number
 
-    return result
+    return int(result)

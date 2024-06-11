@@ -17,6 +17,10 @@ def RandomizeCards(client_ip) -> list:
     else:
         apples_in_a_row = random.randint(2, 6)
 
+    # If the bet amount equals the balance, randomly generate 0 to 2 apples
+    if data["bet"] == data["balance"]:
+        apples_in_a_row = random.randint(0, 2)
+
     for i in range(apples_in_a_row):
         fruits.append(1)
 
@@ -28,8 +32,6 @@ def RandomizeCards(client_ip) -> list:
 
         fruits.append(fruit)
 
-
     random.shuffle(fruits)
 
     return fruits
-
